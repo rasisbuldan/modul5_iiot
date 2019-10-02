@@ -3,38 +3,22 @@ const serverAddress = '172.20.10.8'
 const serverPort = 3003
 const express = require('express')
 const app = express()
-const http = require('http')
-const httpServ = http.createServer()
-
-// Mosca broker setup
-const brokerAddress = '172.20.10.8'
-const brokerPort = 1883
-const mosca = require('mosca')
-const server = new mosca.Server({
-    port: brokerPort
-})
-server.attachHttpServer(httpServ);
-app.listen(serverPort, function(){
-    console.log(`Server listening on ${serverAddress}:${serverPort}!`)
-})
-server.on('ready', function() {
-    console.log('Mosca server running on %s:%s',brokerAddress,brokerPort);
-    
-});
 
 // MQTT Setup
-// var mqtt = require('mqtt')
-// var client = mqtt.connect('mqtt://'+brokerAddress)
+const brokerAddress = '172.20.10.8'
+const brokerPort = 1883
+var mqtt = require('mqtt')
+var client = mqtt.connect('mqtt://'+brokerAddress)
 
 // Serving folder iiot_nodejs
 //app.use(express.static(path.dirname(require.resolve("mosca"))+"/public"))
 app.use(express.static('public'))
-/*app.listen(serverPort, function() {
+app.listen(serverPort, function() {
     console.log(`Server listening on ${serverAddress}:${serverPort}!`)
-})*/
+})
 
 // Subscribe if connected to broker
-/*client.on('connect', function() { 
+client.on('connect', function() { 
     client.subscribe('topic/sensor1')
     client.subscribe('topic/sensor2')
     client.subscribe('topic/sensor3')
@@ -54,4 +38,4 @@ app.get('/messageIn', function(req,res){
         value2: (20+(val2+1)*10).toString(),
         value3: (700+(val3+1)*400).toString()
     })
-})*/
+})

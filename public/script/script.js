@@ -1,10 +1,10 @@
 // Server and broker address
 const brokerAddress = '172.20.10.8'
 const serverAddress = '172.20.10.8'
-const serverPort = 3003
+const serverPort = 3000
 
 // MQTT Setup
-var client = mqtt.connect()
+var client = mqtt.connect('ws:172.20.10.8:3000');
 
 client.on('connect', function() {
     console.log('client connected at %s:%s',brokerAddress);
@@ -36,10 +36,39 @@ function changeValue(value,value_id) {
     document.getElementById(value_id).innerHTML = value
 
     // Update chart
-    // d = new Date()
-    // config.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
-    // config.data.datasets[0].data.push(value).toFixed(2) // 
-    // mychart.update();
+    d = new Date()
+    switch (value_id) {
+        case 'humidity_value':
+                if (config1.data.datasets[0].length > 5) {				
+                    config1.data.datasets[0].data.shift();
+                }
+                config2.data.labels.shift();
+            config1.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config1.data.datasets[0].data.push(value).toFixed(2)
+
+            mychart1.update();
+            break;
+        case 'temperature_value':				
+        if (config2.data.datasets[0].length > 5) {				
+            config2.data.datasets[0].data.shift();
+        }
+        config2.data.labels.shift();
+            config2.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config2.data.datasets[0].data.push(value).toFixed(2)
+
+            mychart2.update();
+            break;
+        case 'brightness_value':
+            if (config3.data.datasets[0].length > 5) {				
+                config3.data.datasets[0].data.shift();
+            }
+            config2.data.labels.shift();
+            config3.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config3.data.datasets[0].data.push(value).toFixed(2)
+
+            mychart3.update();
+            break;
+    }
 }
 
 function changeLED(state,led_id){
@@ -75,19 +104,49 @@ function changeLEDButton() {
 }
 
 // chart.js
-var ctx = document.getElementById('canvas').getContext('2d');
-var config = {
-    type: 'bar',
+var ctx1 = document.getElementById('canvas1').getContext('2d');
+var config1 = {
+    type: 'line',
     data: {
-        labels: [],
+        labels: [0,0,0,0,0,0,0,0,0,0],
         datasets: [{
             label: 'Humidity',
             backgroundColor: 'rgb(46, 204, 113)',
             borderColor: 'rgb(46, 204, 113)',
-            data: [],
+            data: [0,0,0,0,0,0,0,0,0,0],
+            fill: false,
+        }]
+    }
+};
+var ctx2 = document.getElementById('canvas2').getContext('2d');
+var config2 = {
+    type: 'line',
+    data: {
+        labels: [0,0,0,0,0,0,0,0,0,0],
+        datasets: [{
+            label: 'Humidity',
+            backgroundColor: 'rgb(46, 204, 113)',
+            borderColor: 'rgb(46, 204, 113)',
+            data: [0,0,0,0,0,0,0,0,0,0],
+            fill: false,
+        }]
+    }
+};
+var ctx3 = document.getElementById('canvas3').getContext('2d');
+var config3 = {
+    type: 'line',
+    data: {
+        labels: [0,0,0,0,0,0,0,0,0,0],
+        datasets: [{
+            label: 'Humidity',
+            backgroundColor: 'rgb(46, 204, 113)',
+            borderColor: 'rgb(46, 204, 113)',
+            data: [0,0,0,0,0,0,0,0,0,0],
             fill: false,
         }]
     }
 };
 
-var mychart = new Chart(ctx, config);
+var mychart1 = new Chart(ctx1, config1);
+var mychart2 = new Chart(ctx2, config2);
+var mychart3 = new Chart(ctx3, config3);
