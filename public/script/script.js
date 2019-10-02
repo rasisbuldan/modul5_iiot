@@ -4,7 +4,13 @@ const serverAddress = '172.20.10.8'
 const serverPort = 3000
 
 // MQTT Setup
-var client = mqtt.connect('ws:172.20.10.8:3000');
+var client = mqtt.connect('ws:localhost:3000');
+
+//Global Variable
+var x1 = false;
+var x2 = false;
+var x3 = false;
+var x4 = false;
 
 client.on('connect', function() {
     console.log('client connected at %s:%s',brokerAddress);
@@ -18,7 +24,7 @@ client.on('connect', function() {
 })
 
 client.on('message', function(topic, message) { 
-    console.log('received message on %s: %s', topic, message)
+    //console.log('received message on %s: %s', topic, message)
     switch (topic) {
         case 'topic/sensor1': changeValue(message,"humidity_value"); break;
         case 'topic/sensor2': changeValue(message,"temperature_value"); break;
@@ -32,75 +38,100 @@ client.on('message', function(topic, message) {
 
 function changeValue(value,value_id) {
     // Update HTML content
-    console.log('Received data VALUE for id %s : %s',value_id,value);
+    //console.log('Received data VALUE for id %s : %s',value_id,value);
     document.getElementById(value_id).innerHTML = value
 
     // Update chart
     d = new Date()
     switch (value_id) {
         case 'humidity_value':
-                if (config1.data.datasets[0].length > 5) {				
-                    config1.data.datasets[0].data.shift();
-                }
-                config2.data.labels.shift();
             config1.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
             config1.data.datasets[0].data.push(value).toFixed(2)
-
             mychart1.update();
             break;
         case 'temperature_value':				
-        if (config2.data.datasets[0].length > 5) {				
-            config2.data.datasets[0].data.shift();
-        }
-        config2.data.labels.shift();
             config2.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
             config2.data.datasets[0].data.push(value).toFixed(2)
-
             mychart2.update();
             break;
-        case 'brightness_value':
-            if (config3.data.datasets[0].length > 5) {				
-                config3.data.datasets[0].data.shift();
-            }
-            config2.data.labels.shift();
+        case 'brightness_value':				
             config3.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
             config3.data.datasets[0].data.push(value).toFixed(2)
-
             mychart3.update();
             break;
     }
 }
 
-function changeLED(state,led_id){
-    console.log('Received data LED for id %s : %s',led_id,state);
-    switch (state) {
-        case false: // LED Mati
-        document.getElementById(led_id).style.backgroundColor = "rgb(231, 76, 60)";
+function changeLED(state,led_id){ // Change LED on message received
+    console.log('Received data LED for id %s : %s',led_id,state.toString('utf-8'));
+    switch (led_id) {
+        case 'ledstatus1':
+            x1 = state.toString('utf-8');
+            break;
+        case 'ledstatus2':
+            x2 = state.toString('utf-8');
+            break;
+        case 'ledstatus3':
+            x3 = state.toString('utf-8');
+            break;
+        case 'ledstatus4':
+            x4 = state.toString('utf-8');
+            break;
+        default:
+            break;
+    }
+    switch (state.toString('utf-8')) {
+        case 'false': // LED Mati
+        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(231, 76, 60)";
         break;
-        case true: // LED Nyala
-        document.getElementById(led_id).style.backgroundColor = "rgb(46, 204, 113)";
+        case 'true': // LED Nyala
+        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(46, 204, 113)";
         break;
         default: // Data Invalid
-        document.getElementById(led_id).style.backgroundColor = "white";
+        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "white";
     }
 }
 
-function changeLEDButton() {
+function changeLEDButton() { //Publish LED state to broker by toggle
     console.log("Button clicked with id: %s",event.srcElement.id)
-    console.log("Prev state: %s",event.srcElement.backgroundColor == "rgb(46, 204, 113)")
-    state = !(event.srcElement.backgroundColor == "rgb(46, 204, 113)") // State sebelumnya = true
-    console.log("Next state: %s", state)
-    switch (state) {
-        case false: // LED Mati
-        document.getElementById(event.srcElement.id).style.backgroundColor = "rgb(231, 76, 60)";
-        break;
-        case true: // LED Nyala
-        document.getElementById(event.srcElement.id).style.backgroundColor = "rgb(46, 204, 113)";
-        break;
-        default: // Data Invalid
-        document.getElementById(event.srcElement.id).style.backgroundColor = "white";
+    var LEDid = event.srcElement.id.toString('utf-8')
+    console.log("ledid: ", LEDid);
+    
+    switch (event.srcElement.id) {
+        case 'ledstatus1':
+            if(x1.toString('utf-8') == 'false'){
+                client.publish("topic/"+event.srcElement.id,'true')
+            }
+            else{
+                client.publish("topic/"+event.srcElement.id,'false')
+            }
+            break;
+        case 'ledstatus2':
+            if(x2.toString('utf-8') == 'false'){
+                client.publish("topic/"+event.srcElement.id,'true')
+            }
+            else{
+                client.publish("topic/"+event.srcElement.id,'false')
+            }
+            break;
+        case 'ledstatus3':
+            if(x3.toString('utf-8') == 'false'){
+                client.publish("topic/"+event.srcElement.id,'true')    
+            }
+            else{
+                client.publish("topic/"+event.srcElement.id,'false')
+            }
+            break;
+        case 'ledstatus4':
+            if(x4.toString('utf-8') == 'false'){
+                client.publish("topic/"+event.srcElement.id,'true')    
+            }
+            else{
+                client.publish("topic/"+event.srcElement.id,'false')
+            }
+        default:
+            break;
     }
-    client.publish("topic/"+event.srcElement.id,state)
 }
 
 // chart.js
@@ -108,12 +139,12 @@ var ctx1 = document.getElementById('canvas1').getContext('2d');
 var config1 = {
     type: 'line',
     data: {
-        labels: [0,0,0,0,0,0,0,0,0,0],
+        labels: [],
         datasets: [{
             label: 'Humidity',
             backgroundColor: 'rgb(46, 204, 113)',
             borderColor: 'rgb(46, 204, 113)',
-            data: [0,0,0,0,0,0,0,0,0,0],
+            data: [],
             fill: false,
         }]
     }
@@ -122,12 +153,12 @@ var ctx2 = document.getElementById('canvas2').getContext('2d');
 var config2 = {
     type: 'line',
     data: {
-        labels: [0,0,0,0,0,0,0,0,0,0],
+        labels: [],
         datasets: [{
-            label: 'Humidity',
+            label: 'Temperature',
             backgroundColor: 'rgb(46, 204, 113)',
             borderColor: 'rgb(46, 204, 113)',
-            data: [0,0,0,0,0,0,0,0,0,0],
+            data: [],
             fill: false,
         }]
     }
@@ -136,12 +167,12 @@ var ctx3 = document.getElementById('canvas3').getContext('2d');
 var config3 = {
     type: 'line',
     data: {
-        labels: [0,0,0,0,0,0,0,0,0,0],
+        labels: [],
         datasets: [{
-            label: 'Humidity',
+            label: 'Brightness',
             backgroundColor: 'rgb(46, 204, 113)',
             borderColor: 'rgb(46, 204, 113)',
-            data: [0,0,0,0,0,0,0,0,0,0],
+            data: [],
             fill: false,
         }]
     }
