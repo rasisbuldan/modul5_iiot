@@ -1,96 +1,78 @@
-var s1 = 0
-var s2 = 0
-var s3 = 0
-var s4 = 0
+// Server and broker address
+const brokerAddress = '172.20.10.8'
+const serverAddress = '172.20.10.8'
+const serverPort = 3003
 
-const host = 'http://172.20.10.8:3003'
+// MQTT Setup
+var client = mqtt.connect()
 
-async function changeValue(){
-    var response = await fetch(host+'/messageIn')
-    var data = await response.json()
+client.on('connect', function() {
+    console.log('client connected at %s:%s',brokerAddress);
+    client.subscribe('topic/sensor1')
+    client.subscribe('topic/sensor2')
+    client.subscribe('topic/sensor3')
+    client.subscribe('topic/ledstatus1')
+    client.subscribe('topic/ledstatus2')
+    client.subscribe('topic/ledstatus3')
+    client.subscribe('topic/ledstatus4')
+})
 
+client.on('message', function(topic, message) { 
+    console.log('received message on %s: %s', topic, message)
+    switch (topic) {
+        case 'topic/sensor1': changeValue(message,"humidity_value"); break;
+        case 'topic/sensor2': changeValue(message,"temperature_value"); break;
+        case 'topic/sensor3': changeValue(message,"brightness_value"); break;
+        case 'topic/ledstatus1' : changeLED(message,"ledstatus1"); break;
+        case 'topic/ledstatus2' : changeLED(message,"ledstatus2"); break;
+        case 'topic/ledstatus3' : changeLED(message,"ledstatus3"); break;
+        case 'topic/ledstatus4' : changeLED(message,"ledstatus4"); break;
+    }
+})
+
+function changeValue(value,value_id) {
     // Update HTML content
-    console.log('received data: %s',data.value1);
-    document.getElementById("humidity_value").innerHTML = data.value1
-    document.getElementById("temperature_value").innerHTML = data.value2
-    document.getElementById("brightness_value").innerHTML = data.value3
+    console.log('Received data VALUE for id %s : %s',value_id,value);
+    document.getElementById(value_id).innerHTML = value
 
     // Update chart
-    d = new Date()
-    config.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds());
-    config.data.datasets[0].data.push((60+(data.value1+1)*40).toFixed(2));
-    mychart.update();
+    // d = new Date()
+    // config.data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+    // config.data.datasets[0].data.push(value).toFixed(2) // 
+    // mychart.update();
 }
 
-setInterval(function(){changeValue();},200)
-
-var x1 = false;
-var x2 = false;
-var x3 = false;
-var x4 = false;
-
-function changeStatus1(){
-    x1 = !x1;
-    switch (x1) {
-        case false: // LED mati
-        document.getElementById("ledstatus1").style.backgroundColor = "rgb(231, 76, 60)";
+function changeLED(state,led_id){
+    console.log('Received data LED for id %s : %s',led_id,state);
+    switch (state) {
+        case false: // LED Mati
+        document.getElementById(led_id).style.backgroundColor = "rgb(231, 76, 60)";
         break;
-        case true: // LED nyala
-        document.getElementById("ledstatus1").style.backgroundColor = "rgb(46, 204, 113)";
+        case true: // LED Nyala
+        document.getElementById(led_id).style.backgroundColor = "rgb(46, 204, 113)";
         break;
-        default: // Tidak ada data
-        document.getElementById("ledstatus1").style.backgroundColor = "white";
+        default: // Data Invalid
+        document.getElementById(led_id).style.backgroundColor = "white";
     }
 }
 
-function changeStatus2(){
-    x2 = !x2;
-    switch (x2) {
-        case false: // LED mati
-        document.getElementById("ledstatus2").style.backgroundColor = "rgb(231, 76, 60)";
+function changeLEDButton() {
+    console.log("Button clicked with id: %s",event.srcElement.id)
+    console.log("Prev state: %s",event.srcElement.backgroundColor == "rgb(46, 204, 113)")
+    state = !(event.srcElement.backgroundColor == "rgb(46, 204, 113)") // State sebelumnya = true
+    console.log("Next state: %s", state)
+    switch (state) {
+        case false: // LED Mati
+        document.getElementById(event.srcElement.id).style.backgroundColor = "rgb(231, 76, 60)";
         break;
-        case true: // LED nyala
-        document.getElementById("ledstatus2").style.backgroundColor = "rgb(46, 204, 113)";
+        case true: // LED Nyala
+        document.getElementById(event.srcElement.id).style.backgroundColor = "rgb(46, 204, 113)";
         break;
-        default: // Tidak ada data
-        document.getElementById("ledstatus2").style.backgroundColor = "white";
+        default: // Data Invalid
+        document.getElementById(event.srcElement.id).style.backgroundColor = "white";
     }
+    client.publish("topic/"+event.srcElement.id,state)
 }
-
-function changeStatus3(){
-    x3 = !x3;
-    switch (x3) {
-        case false: // LED mati
-        document.getElementById("ledstatus3").style.backgroundColor = "rgb(231, 76, 60)";
-        break;
-        case true: // LED nyala
-        document.getElementById("ledstatus3").style.backgroundColor = "rgb(46, 204, 113)";
-        break;
-        default: // Tidak ada data
-        document.getElementById("ledstatus3").style.backgroundColor = "white";
-    }
-}
-
-function changeStatus4(){
-    x4 = !x4;
-    switch (x4) {
-        case false: // LED mati
-        document.getElementById("ledstatus4").style.backgroundColor = "rgb(231, 76, 60)";
-        break;
-        case true: // LED nyala
-        document.getElementById("ledstatus4").style.backgroundColor = "rgb(46, 204, 113)";
-        break;
-        default: // Tidak ada data
-        document.getElementById("ledstatus4").style.backgroundColor = "white";
-    }
-}
-
-// Get Time
-var d = new Date()
-var h = d.getHours()
-var m = d.getMinutes()
-var s = (d.getMilliseconds())/1000
-var now = h+':'+m+':'+s
 
 // chart.js
 var ctx = document.getElementById('canvas').getContext('2d');
