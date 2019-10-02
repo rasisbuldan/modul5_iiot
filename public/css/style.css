@@ -1,0 +1,127 @@
+body {
+    background-color: #2c3e50;
+    font-family: sans-serif;
+    text-align: center;
+    color: white;
+    margin: 0;
+}
+
+h1 {
+    text-align:center;
+}
+
+p {
+    text-align: center;
+    color: white;
+    vertical-align: middle;
+}
+
+ul {
+    background-color: white;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+}
+
+li {
+    color: #34495e;
+    font-size: 24;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#logo_itb {
+    margin: 7.5px;
+    height: 45px;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.ledstatus {
+    width: 360px;
+    margin: auto;
+}
+
+.container_title {
+    font-weight: bold;
+    font-size: 20pt;
+    margin: 20px auto;
+    margin-bottom: 5px;
+}
+
+.indicators {
+    display: table-cell;
+    border-style: solid;
+    border-width: 4px;
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    vertical-align: middle;
+    background-color: rgb(231, 76, 60);
+}
+
+#dashboard {
+    background-color: white;
+    width:900px;canvas
+    padding: 10px;
+    margin:auto;
+}
+
+.sensors_container {
+    width: 500px;
+    margin: auto;
+    text-align: center;
+    overflow: auto;
+}
+
+.sensors {
+    border-style: solid;
+    border-width:3px;
+    border-color:powderblue;
+    padding: 0;
+    width: 150px;
+    height: 100px;
+    margin: auto;
+    display: inline-block;
+    color: Black;
+    overflow: hidden;
+}
+
+.sensors_title {
+    color: Black;
+    display: table-cell;
+    vertical-align: middle;
+    font-family: 'Helvetica';
+    font-size: 15pt;
+    width: 150px;
+    padding: 10px 0;
+    background-color: powderblue;
+    margin: 0;
+}
+
+.sensors_value {
+    font-size: 20pt;
+    display: table-cell;
+    font-family: 'Helvetica','Arial',sans-serif;
+    display: inline-block;
+    margin-top: 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.sensors_number {
+    display: inline;
+}
+
+.graph {
+    margin: 30px auto;
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    width: 60%;
+    color: white;
+    align-items: center;
+}
