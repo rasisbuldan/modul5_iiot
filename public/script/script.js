@@ -6,12 +6,13 @@ const serverPort = 3000
 // MQTT Setup
 var client = mqtt.connect('ws:localhost:3000');
 
-//Global Variable
+// Global Variable (LED)
 var x1 = false;
 var x2 = false;
 var x3 = false;
 var x4 = false;
 
+// Run when connected (continuous)
 client.on('connect', function() {
     console.log('client connected at %s:%s',brokerAddress);
     client.subscribe('topic/sensor1')
@@ -23,6 +24,7 @@ client.on('connect', function() {
     client.subscribe('topic/ledstatus4')
 })
 
+// Run when message received
 client.on('message', function(topic, message) { 
     //console.log('received message on %s: %s', topic, message)
     switch (topic) {
@@ -36,6 +38,7 @@ client.on('message', function(topic, message) {
     }
 })
 
+// Update HTML when message received
 function changeValue(value,value_id) {
     // Update HTML content
     //console.log('Received data VALUE for id %s : %s',value_id,value);
@@ -62,6 +65,7 @@ function changeValue(value,value_id) {
     }
 }
 
+// Update LED value with received state
 function changeLED(state,led_id){ // Change LED on message received
     console.log('Received data LED for id %s : %s',led_id,state.toString('utf-8'));
     switch (led_id) {
@@ -92,7 +96,8 @@ function changeLED(state,led_id){ // Change LED on message received
     }
 }
 
-function changeLEDButton() { //Publish LED state to broker by toggle
+// Publish LED state when button pressed (toggle)
+function changeLEDButton() {
     console.log("Button clicked with id: %s",event.srcElement.id)
     var LEDid = event.srcElement.id.toString('utf-8')
     console.log("ledid: ", LEDid);
