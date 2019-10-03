@@ -105,7 +105,7 @@ function changeLEDButton() { //Publish LED state to broker by toggle
             else{
                 client.publish("topic/"+event.srcElement.id,'false')
             }
-            break;
+            break;  
         case 'ledstatus2':
             if(x2.toString('utf-8') == 'false'){
                 client.publish("topic/"+event.srcElement.id,'true')
