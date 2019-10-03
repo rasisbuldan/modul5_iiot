@@ -35,8 +35,12 @@ const char* mqtt_server = "172.20.10.8";
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
-char msg[50];
-int value = 0;
+char msg1[50];
+char msg2[50];
+char msg3[50];
+int value1 = 0;
+int value2 = 0;
+int value3 = 0;
 
 void setup_wifi() {
   // We start by connecting to a WiFi network
@@ -79,11 +83,13 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
     
     // Attempt to connect
-    if (client.connect(clientId.c_str())) { //Send first confirmation message if connected
+    if (client.connect(clientId.c_str())) {
       Serial.println("connected");
-      client.publish("topic/sensor1", "0");
-      client.subscribe("topic/sensor2");
+      client.publish("topic/sensor1", "0"); //Send first confirmation message if connected
       client.subscribe("topic/ledstatus1");
+      client.subscribe("topic/ledstatus2");
+      client.subscribe("topic/ledstatus3");
+      client.subscribe("topic/ledstatus4");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -112,10 +118,20 @@ void loop() {
   long now = millis();
   if (now - lastMsg > 2000) {
     lastMsg = now;
-    value = random(10,100);
-    snprintf (msg, 50, "%d", value);
+    value1 = random(10,100);
+    value2 = random(10,30);
+    value3 = random(300,1200);
+    snprintf (msg1, 50, "%d", value1);
+    snprintf (msg2, 50, "%d", value2);
+    snprintf (msg3, 50, "%d", value3);
     Serial.print("Publish message: ");
-    Serial.println(msg);
-    client.publish("topic/sensor1", msg);
+    Serial.print(msg1);
+    Serial.print(" | ");
+    Serial.print(msg2);
+    Serial.print(" | ");
+    Serial.println(msg3);
+    client.publish("topic/sensor1", msg1);
+    client.publish("topic/sensor2", msg2);
+    client.publish("topic/sensor3", msg3);
   }
 }
