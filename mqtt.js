@@ -5,7 +5,7 @@ var server = new mosca.Server({
     port: 3000,
     bundle: true,
     static: './public/' // Serving public folder
-  }
+}
 });
 
 // Triggered when server status is ready
