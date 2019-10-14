@@ -6,11 +6,8 @@ const serverPort = 3000
 // MQTT Setup
 var client = mqtt.connect('ws:'+brokerAddress+':'+serverPort);
 
-// Global Variable (LED)
-var x1 = false;
-var x2 = false;
-var x3 = false;
-var x4 = false;
+// Initialization before data received from broker
+var ledstate = [,false, false, false, false] // index 1-4 for ease of use
 
 // Run when connected (continuous)
 client.on('connect', function() {
@@ -26,7 +23,7 @@ client.on('connect', function() {
 
 // Run when message received
 client.on('message', function(topic, message) { 
-    //console.log('received message on %s: %s', topic, message)
+    // console.log('received message on %s: %s', topic, message)
     switch (topic) {
         case 'topic/sensor1': changeValue(message,"humidity_value"); break;
         case 'topic/sensor2': changeValue(message,"temperature_value"); break;
@@ -46,13 +43,14 @@ function changeValue(value,value_id) {
 
     // Update chart
     d = new Date()
+    var timeNow = d.getHours()+':'+d.getMinutes()+':'+d.getSeconds(); // Get current time
     switch (value_id) {
         case 'humidity_value':
             if (config[0].data.datasets[0].data.length > 10) {
                 config[0].data.datasets[0].data.shift()
                 config[0].data.labels.shift()
             }
-            config[0].data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config[0].data.labels.push(timeNow) // Current time as chart label
             config[0].data.datasets[0].data.push(value).toFixed(2)
             mychart1.update();
             break;
@@ -61,7 +59,7 @@ function changeValue(value,value_id) {
                 config[1].data.datasets[0].data.shift()
                 config[1].data.labels.shift()
             }
-            config[1].data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config[1].data.labels.push(timeNow) // Current time as chart label
             config[1].data.datasets[0].data.push(value).toFixed(2)
             mychart2.update();
             break;
@@ -70,7 +68,7 @@ function changeValue(value,value_id) {
                 config[2].data.datasets[0].data.shift()
                 config[2].data.labels.shift()
             }				
-            config[2].data.labels.push(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()) // Current time as chart label
+            config[2].data.labels.push(timeNow) // Current time as chart label
             config[2].data.datasets[0].data.push(value).toFixed(2)
             mychart3.update();
             break;
@@ -80,31 +78,27 @@ function changeValue(value,value_id) {
 // Update LED value with received state
 function changeLED(state,led_id){ // Change LED on message received
     console.log('Received data LED for id %s : %s',led_id,state.toString('utf-8'));
+
+    // LED id switch to determine which led state to be update 
     switch (led_id) {
-        case 'ledstatus1':
-            x1 = state.toString('utf-8');
-            break;
-        case 'ledstatus2':
-            x2 = state.toString('utf-8');
-            break;
-        case 'ledstatus3':
-            x3 = state.toString('utf-8');
-            break;
-        case 'ledstatus4':
-            x4 = state.toString('utf-8');
-            break;
-        default:
-            break;
+        case 'ledstatus1': ledstate[1] = state.toString('utf-8'); break;
+        case 'ledstatus2': ledstate[2] = state.toString('utf-8'); break;
+        case 'ledstatus3': ledstate[3] = state.toString('utf-8'); break;
+        case 'ledstatus4': ledstate[4] = state.toString('utf-8'); break;
+        default: break;
     }
+
+    // Change color on state change
     switch (state.toString('utf-8')) {
-        case 'false': // LED Mati
-        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(231, 76, 60)";
+        case 'false': // LED Mati (Merah)
+            document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(231, 76, 60)";
         break;
-        case 'true': // LED Nyala
-        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(46, 204, 113)";
+        case 'true': // LED Nyala (Hijau)
+            document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "rgb(46, 204, 113)";
         break;
         default: // Data Invalid
-        document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "white";
+            document.getElementById(led_id.toString('utf-8')).style.backgroundColor = "white";
+        break;
     }
 }
 
@@ -114,40 +108,20 @@ function changeLEDButton() {
     var LEDid = event.srcElement.id.toString('utf-8')
     console.log("ledid: ", LEDid);
     
-    switch (event.srcElement.id) {
-        case 'ledstatus1':
-            if(x1.toString('utf-8') == 'false'){
-                client.publish("topic/"+event.srcElement.id,'true')
-            }
-            else{
-                client.publish("topic/"+event.srcElement.id,'false')
-            }
-            break;  
-        case 'ledstatus2':
-            if(x2.toString('utf-8') == 'false'){
-                client.publish("topic/"+event.srcElement.id,'true')
-            }
-            else{
-                client.publish("topic/"+event.srcElement.id,'false')
-            }
-            break;
-        case 'ledstatus3':
-            if(x3.toString('utf-8') == 'false'){
-                client.publish("topic/"+event.srcElement.id,'true')    
-            }
-            else{
-                client.publish("topic/"+event.srcElement.id,'false')
-            }
-            break;
-        case 'ledstatus4':
-            if(x4.toString('utf-8') == 'false'){
-                client.publish("topic/"+event.srcElement.id,'true')    
-            }
-            else{
-                client.publish("topic/"+event.srcElement.id,'false')
-            }
-        default:
-            break;
+    switch (event.srcElement.id) { // Select LED state array to update
+        case 'ledstatus1': led = ledstate[1]; break;
+        case 'ledstatus2': led = ledstate[2]; break;
+        case 'ledstatus3': led = ledstate[3]; break;
+        case 'ledstatus4': led = ledstate[4]; break;
+        default: break;
+    }
+
+    // Toggle LED state and publish
+    if(led.toString('utf-8') == 'false'){
+        client.publish("topic/"+event.srcElement.id,'true')
+    }
+    else{
+        client.publish("topic/"+event.srcElement.id,'false')
     }
 }
 

@@ -28,9 +28,9 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "ssid";
-const char* password = "password";
-const char* mqtt_server = "ip_address";
+const char* ssid = "stoorm";
+const char* password = "hehehehe";
+const char* mqtt_server = "192.168.0.102";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -73,14 +73,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) { // Concat payload char to string (msg)
     msg += (char)payload[i];
   }
-
-  if(msgtopic == "topic/ledstatus1"){
+  Serial.println(msg);
+  if(msgtopic == "topic/ledstatus1"){ // if LED button 1 toggled
     if(msg == "true"){
-      Serial.println("high");
+      Serial.println("LED ON");
       digitalWrite(LED_BUILTIN, !HIGH);
     }
     else {
-      Serial.println("low");
+      Serial.println("LED OFF");
       digitalWrite(LED_BUILTIN, !LOW);
     }
   }
