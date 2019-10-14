@@ -79,7 +79,7 @@ function changeValue(value,value_id) {
 
 // Update LED value with received state
 function changeLED(state,led_id){ // Change LED on message received
-    console.log('Received data LED for id %s : %s',led_id,state);
+    console.log('Received data LED for id %s : %s',led_id,state.toString('utf-8'));
     switch (led_id) {
         case 'ledstatus1':
             x1 = state.toString('utf-8');

@@ -28,13 +28,14 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "stoorm-iPhone";
-const char* password = "hehehehe";
-const char* mqtt_server = "172.20.10.8";
+const char* ssid = "ssid";
+const char* password = "password";
+const char* mqtt_server = "ip_address";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
+String msg, msgtopic;
 char msg1[50];
 char msg2[50];
 char msg3[50];
@@ -67,10 +68,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message received on topic ");
   Serial.print(topic);
   Serial.print(": ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+  msgtopic = String((char*)topic);
+  msg = "";
+  for (int i = 0; i < length; i++) { // Concat payload char to string (msg)
+    msg += (char)payload[i];
   }
-  Serial.println();
+
+  if(msgtopic == "topic/ledstatus1"){
+    if(msg == "true"){
+      Serial.println("high");
+      digitalWrite(LED_BUILTIN, !HIGH);
+    }
+    else {
+      Serial.println("low");
+      digitalWrite(LED_BUILTIN, !LOW);
+    }
+  }
 }
 
 void reconnect() {
@@ -106,6 +119,8 @@ void setup() {
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
+
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
