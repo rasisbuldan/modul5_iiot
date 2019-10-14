@@ -1,7 +1,7 @@
 // Server and broker address
-const brokerAddress = '192.168.0.102'
-const serverAddress = '192.168.0.102'
-const serverPort = 3000
+const brokerAddress = 'broker_ip_address'
+const serverAddress = 'broker_ip_address'
+const serverPort = 'broker_port'
 
 // MQTT Setup
 var client = mqtt.connect('ws:'+brokerAddress+':'+serverPort);
