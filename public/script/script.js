@@ -1,7 +1,7 @@
 // Server and broker address
-const brokerAddress = 'broker_ip_address'
-const serverAddress = 'broker_ip_address'
-const serverPort = 'broker_port'
+const brokerAddress = '192.168.0.103'
+const serverAddress = '192.168.0.103'
+const serverPort = '3000'
 
 // MQTT Setup
 var client = mqtt.connect('ws:'+brokerAddress+':'+serverPort);
@@ -46,33 +46,45 @@ function changeValue(value,value_id) {
     var timeNow = d.getHours()+':'+d.getMinutes()+':'+d.getSeconds(); // Get current time
     switch (value_id) {
         case 'humidity_value':
-            if (config[0].data.datasets[0].data.length > 10) {
+            if (config[0].data.datasets[0].data.length >= 10) {
                 config[0].data.datasets[0].data.shift()
                 config[0].data.labels.shift()
             }
             config[0].data.labels.push(timeNow) // Current time as chart label
             config[0].data.datasets[0].data.push(value).toFixed(2)
             mychart1.update();
+            calculateMean(0);
             break;
         case 'temperature_value':
-            if (config[1].data.datasets[0].data.length > 10) {
+            if (config[1].data.datasets[0].data.length >= 10) {
                 config[1].data.datasets[0].data.shift()
                 config[1].data.labels.shift()
             }
             config[1].data.labels.push(timeNow) // Current time as chart label
             config[1].data.datasets[0].data.push(value).toFixed(2)
             mychart2.update();
+            calculateMean(1);
             break;
         case 'brightness_value':
-            if (config[2].data.datasets[0].data.length > 10) {
+            if (config[2].data.datasets[0].data.length >= 10) {
                 config[2].data.datasets[0].data.shift()
                 config[2].data.labels.shift()
             }				
             config[2].data.labels.push(timeNow) // Current time as chart label
             config[2].data.datasets[0].data.push(value).toFixed(2)
             mychart3.update();
+            calculateMean(2);
             break;
     }
+}
+
+function calculateMean(s){
+    var sensordata = config[s].data.datasets[0].data;
+    var sum = 0;
+    for (var value of sensordata){
+        sum += Number(value);
+    }
+    console.log("mean[",s,"]: ",(sum/sensordata.length).toFixed(3));
 }
 
 // Update LED value with received state

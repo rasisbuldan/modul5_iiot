@@ -2,9 +2,9 @@
 #include <PubSubClient.h>
 
 // Update these with values suitable for your network.
-const char* ssid = "ssid";
-const char* password = "password";
-const char* mqtt_server = "broker_ip_address";
+const char* ssid = "stoorm-iPhone";
+const char* password = "hehehehe";
+const char* mqtt_server = "172.20.10.8";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
