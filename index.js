@@ -1,25 +1,24 @@
 // Embedded Mosca initialization
 var mosca = require("mosca");
-var server = new mosca.Server({
-  http: { // Using HTTP protocol
-    port: 3000,
+var broker = new mosca.Server({
     bundle: true,
-    static: './public/' // Serving public folder
-}
+    port: 1883
 });
 
+// HTTP Serve initialization
+var express = require("express");
+var http = require("http");
+var app = express();
+var srv = http.createServer(app);
+var path = require("path");
+
+app.use(express.static(path.dirname(require.resolve("mosca"))+"public/"));
+app.listen(3000, function(){
+    console.log(path.dirname(require.resolve("mosca")))
+    console.log("Express server listening on port 3000!")
+})
+
 // Triggered when server status is ready
-server.on('ready', function(){
+broker.on('ready', function(){
     console.log('Mosca server is up and running in port 1883!')
-    console.log('Using port 3000 for MQTT over Web-Sockets!')
-})
-
-// Triggered when a client is connected
-server.on('clientConnected', function(client) {
-    console.log('client connected', client.id)
-})
-
-// Triggered when a message is received
-server.on('published', function(packet, client) {
-    console.log(packet.payload.toString('utf-8'))
 })

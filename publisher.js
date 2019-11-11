@@ -1,7 +1,7 @@
 var t = 0
 var u = 0
 var n = 0;
-const brokerAddress = '192.168.0.103'
+const brokerAddress = '192.168.1.7'
 //var host = 'mqtt://192.168.43.106'
 //var options = {retain: true}
 
