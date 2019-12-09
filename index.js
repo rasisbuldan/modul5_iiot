@@ -1,11 +1,11 @@
 // Embedded Mosca initialization
 var mosca = require("mosca");
 var server = new mosca.Server({
-  http: { // Using HTTP protocol
-    port: 3000,
-    bundle: true,
-    static: './public/' // Serving public folder
-}
+    http: { // Using HTTP protocol
+        port: 3000,
+        bundle: true,
+        static: './public/' // Serving public folder
+    }
 });
 
 // Triggered when server status is ready
